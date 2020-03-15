@@ -1,11 +1,13 @@
 package hms.dev.knock.server;
 
+import hms.dev.knock.server.entity.api.ProductResponse;
+import hms.dev.knock.server.handler.ApiRequestHandler;
+import hms.dev.knock.server.service.ProductDetailService;
 import hms.dev.util.LogUtil;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.Socket;
 
 public class ServerSession implements Runnable {
@@ -29,7 +31,12 @@ public class ServerSession implements Runnable {
 
             if (inputLine != null) {
                 LogUtil.logMessage("Client: " + inputLine);
-                outputLine = inputLine.toUpperCase();
+                CloseableHttpClient httpClient = HttpClients.createDefault();
+                ProductDetailService productDetailService = new ProductDetailService(
+                        new ApiRequestHandler(httpClient));
+
+                ProductResponse response = productDetailService.getDetails(inputLine);
+                outputLine = String.valueOf(response);
                 out.println(outputLine);
                 LogUtil.logMessage("Server: " + outputLine);
             }

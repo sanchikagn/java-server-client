@@ -41,8 +41,6 @@ public class KnockKnockServer {
             while (true) {
                 Socket clientSocket = serverSocket.accept();
                 taskList.submitTask(clientSocket);
-//                Thread clientHandlingThread = new Thread(new ServerSession(clientSocket));
-//                clientHandlingThread.start();
             }
         } catch (IOException e) {
             LogUtil.logMessage("Exception occurred while waiting client socket");
