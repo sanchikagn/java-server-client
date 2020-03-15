@@ -1,4 +1,4 @@
-package hms.dev.knock;
+package hms.dev.knock.protocol;
 
 public class KnockKnockProtocol {
     private static final int WAITING = 0;

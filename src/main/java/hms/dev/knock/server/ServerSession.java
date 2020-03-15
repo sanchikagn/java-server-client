@@ -1,24 +1,23 @@
-package hms.dev.knock;
+package hms.dev.knock.server;
 
 import hms.dev.util.LogUtil;
 
-import java.net.*;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
 
-public class KnockKnockServer {
-    public static void main(String[] args) throws IOException {
+public class ServerSession implements Runnable {
 
-        int portNumber = 8080;
-        ServerSocket serverSocket = new ServerSocket(portNumber);
+    private final Socket clientSocket;
 
-        while (true) {
-            Socket clientSocket = serverSocket.accept();
-            Thread clientHandlingThread = new Thread(() -> acceptClientConnection(clientSocket));
-            clientHandlingThread.start();
-        }
+    public ServerSession(Socket clientSocket) {
+        this.clientSocket = clientSocket;
     }
 
-    private static void acceptClientConnection(Socket clientSocket) {
+    @Override
+    public void run() {
         try (
                 PrintWriter out =
                         new PrintWriter(clientSocket.getOutputStream(), true);
@@ -32,7 +31,7 @@ public class KnockKnockServer {
                 LogUtil.logMessage("Client: " + inputLine);
                 outputLine = inputLine.toUpperCase();
                 out.println(outputLine);
-                LogUtil.logMessage("Server:" + outputLine);
+                LogUtil.logMessage("Server: " + outputLine);
             }
         } catch (IOException e) {
             System.out.println("Exception caught when trying to listen or listening for a connection");
