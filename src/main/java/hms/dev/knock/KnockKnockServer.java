@@ -13,7 +13,8 @@ public class KnockKnockServer {
 
         while (true) {
             Socket clientSocket = serverSocket.accept();
-            acceptClientConnection(clientSocket);
+            Thread clientHandlingThread = new Thread(() -> acceptClientConnection(clientSocket));
+            clientHandlingThread.start();
         }
     }
 
