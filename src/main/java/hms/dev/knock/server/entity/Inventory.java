@@ -16,4 +16,9 @@ public class Inventory {
     public int getInventoryCount() {
         return inventoryCount;
     }
+
+    @Override
+    public String toString() {
+        return "Inventory{"+ "productId=" + productId + ", inventoryCount=" + inventoryCount +"}";
+    }
 }

@@ -5,16 +5,18 @@ import hms.dev.util.LogUtil;
 
 import java.net.*;
 import java.io.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.IntStream;
 
 public class KnockKnockServer {
 
+    private final ExecutorService executorService = Executors.newFixedThreadPool(10,
+            r -> new Thread(r, "server"));
     private final int port;
-    private final TaskManager<Socket> taskList;
 
-    public KnockKnockServer(int port, TaskManager<Socket> taskList) {
+    public KnockKnockServer(int port) {
         this.port = port;
-        this.taskList = taskList;
     }
 
     public static void main(String[] args) {
@@ -22,14 +24,14 @@ public class KnockKnockServer {
         int port = 8080;
         TaskManager<Socket> taskList = new TaskManager<>();
 
-        IntStream.range(0, 3).mapToObj(processorNo -> {
-            Thread processorThread = new Thread(new RequestProcessor(taskList));
-            processorThread.setName("RequestProcessor: " + processorNo);
-            processorThread.setDaemon(false);
-            return processorThread;
-        }).forEach(Thread::start);
+//        IntStream.range(0, 3).mapToObj(processorNo -> {
+//            Thread processorThread = new Thread(new RequestProcessor(taskList));
+//            processorThread.setName("RequestProcessor: " + processorNo);
+//            processorThread.setDaemon(false);
+//            return processorThread;
+//        }).forEach(Thread::start);
 
-        KnockKnockServer server = new KnockKnockServer(port, taskList);
+        KnockKnockServer server = new KnockKnockServer(port);
         server.init();
         LogUtil.logMessage("Server started on port: " + port);
     }
@@ -40,7 +42,7 @@ public class KnockKnockServer {
             serverSocket = new ServerSocket(port);
             while (true) {
                 Socket clientSocket = serverSocket.accept();
-                taskList.submitTask(clientSocket);
+                executorService.execute(new ServerSession(clientSocket, executorService));
             }
         } catch (IOException e) {
             LogUtil.logMessage("Exception occurred while waiting client socket");
@@ -61,7 +63,7 @@ public class KnockKnockServer {
             while (true) {
                 try {
                     Socket client = taskList.removeWaiting();
-                    new ServerSession(client).run();
+//                    new ServerSession(client).run();
                 } catch (InterruptedException e) {
                     LogUtil.logMessage("Exception occurred while waiting client socket");
                     LogUtil.logMessage(e.getMessage());
